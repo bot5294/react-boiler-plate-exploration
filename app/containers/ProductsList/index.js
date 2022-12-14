@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect,useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -18,11 +18,12 @@ import makeSelectProductsList from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
-import { fetchProducts } from './actions';
+import { deleteProduct, fetchProducts } from './actions';
 
 export function ProductsList(props) {
   useInjectReducer({ key: 'productsList', reducer });
   useInjectSaga({ key: 'productsList', saga });
+  
   useEffect(() => {
     if (
       props.productsList &&
@@ -32,7 +33,7 @@ export function ProductsList(props) {
       props.fetchProducts();
     }
     console.log(props);
-  }, [props.productsList.products]);
+  }, [props.productsList]);
   const productsList = props.productsList.products;
   console.log('product >> indexjs >> ', productsList);
   return (
@@ -46,7 +47,10 @@ export function ProductsList(props) {
         {productsList.products &&
           productsList.products.length > 0 &&
           productsList.products.map((item, index) => (
-            <p key={index}>{item.title}</p>
+            <div key={index}>
+            <p>{item.title} &nbsp;
+            <button onClick={()=>props.deleteProduct(item.id)} >X</button></p>
+            </div>
           ))}
       </div>
     </div>
@@ -56,6 +60,7 @@ export function ProductsList(props) {
 ProductsList.propTypes = {
   dispatch: PropTypes.func.isRequired,
   fetchProducts: PropTypes.func,
+  props:PropTypes.any
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -66,6 +71,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     fetchProducts: () => dispatch(fetchProducts()),
+    deleteProduct:(id)=>dispatch(deleteProduct(id)),
   };
 }
 
