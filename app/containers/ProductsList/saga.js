@@ -1,7 +1,13 @@
 import { take, call, put, select, takeLatest, all } from 'redux-saga/effects';
-import { ADD_PRODUCT, DELETE_PRODUCT, FETCH_PRODUCTS } from './constants';
+import { ADD_PRODUCT, DELETE_PRODUCT, EDIT_PRODUCT, FETCH_PRODUCTS } from './constants';
 import request from '../../utils/request';
-import { addProduct, addProductSuccess, deleteProductSuccess, fetchProductsSuccess } from './actions';
+import {
+  addProduct,
+  addProductSuccess,
+  deleteProductSuccess,
+  editProductSuccess,
+  fetchProductsSuccess,
+} from './actions';
 export function* fetchProducts() {
   const reqUrl = 'https://dummyjson.com/products';
   try {
@@ -33,17 +39,44 @@ export function* deleteProducts(action) {
     console.log(error);
   }
 }
-export function* addNewProduct(action){
+export function* addNewProduct(action) {
   const reqUrl = `https://dummyjson.com/products/add`;
   try {
-    const options={
-      method:'POST',
-      body:action.data
+    const options = {
+      method: 'POST',
+      body: action.data,
     };
-    const newProduct = yield call(request,reqUrl,options);
-    console.log("newProduct >>> ",newProduct);
-    if(newProduct){
-      yield put(addProductSuccess({isNewProductAdded:true,msg:`new product( ${action.data} ) is added successfully`,newProductId:newProduct.id}));
+    const newProduct = yield call(request, reqUrl, options);
+    console.log('newProduct >>> ', newProduct);
+    if (newProduct) {
+      yield put(
+        addProductSuccess({
+          isNewProductAdded: true,
+          msg: `new product( ${action.data} ) is added successfully`,
+          newProductId: newProduct.id,
+        }),
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+export function* updateProduct(action){
+  const reqUrl = `https://dummyjson.com/products/${action.id}`;
+  try {
+    const options = {
+      method: 'PUT',
+      body: {title:action.newTitle},
+    };
+    const updatedProduct = yield call(request, reqUrl, options);
+    console.log('updatedProduct >>> ', updatedProduct);
+    if (updatedProduct) {
+      yield put(
+        editProductSuccess({
+          isProductUpdated: true,
+          msg: `product with id ( ${action.id} ) is updated successfully`,
+        }),
+      );
     }
   } catch (error) {
     console.log(error);
@@ -56,6 +89,7 @@ export default function* productsListSaga() {
   yield all([
     takeLatest(FETCH_PRODUCTS, fetchProducts),
     takeLatest(DELETE_PRODUCT, deleteProducts),
-    takeLatest(ADD_PRODUCT,addNewProduct)
+    takeLatest(ADD_PRODUCT, addNewProduct),
+    takeLatest(EDIT_PRODUCT,updateProduct)
   ]);
 }

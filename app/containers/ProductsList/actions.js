@@ -12,6 +12,9 @@ import {
   DELETE_PRODUCT_SUCCESS,
   ADD_PRODUCT,
   ADD_PRODUCT_SUCCESS,
+  RESET_MSGS,
+  EDIT_PRODUCT,
+  EDIT_PRODUCT_SUCCESS,
 } from './constants';
 
 export function defaultAction() {
@@ -54,6 +57,24 @@ export function addProduct(productData) {
 export function addProductSuccess(response) {
   return {
     type: ADD_PRODUCT_SUCCESS,
+    response,
+  };
+}
+export function resetMsgs() {
+  return {
+    type: RESET_MSGS,
+  };
+}
+export function editProduct(productData) {
+  return {
+    type: EDIT_PRODUCT,
+    id: productData.id,
+    newTitle:productData.newTitle
+  };
+}
+export function editProductSuccess(response) {
+  return {
+    type: EDIT_PRODUCT_SUCCESS,
     response,
   };
 }

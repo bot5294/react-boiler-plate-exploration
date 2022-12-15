@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useEffect,useRef } from 'react';
+import React, { memo, useEffect, useRef,useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -18,12 +18,15 @@ import makeSelectProductsList from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
-import { addProduct, deleteProduct, fetchProducts } from './actions';
+import { addProduct, deleteProduct, editProduct, fetchProducts, resetMsgs } from './actions';
 
 export function ProductsList(props) {
   useInjectReducer({ key: 'productsList', reducer });
   useInjectSaga({ key: 'productsList', saga });
+  const [showEdit,setShowEdit] = useState(false);
+  const [toggleId,setToggleId] = useState(null);
   const addInput = useRef(null);
+  const editInput = useRef(null);
   useEffect(() => {
     if (
       props.productsList &&
@@ -32,23 +35,40 @@ export function ProductsList(props) {
     ) {
       props.fetchProducts();
     }
-  }, [props.productsList.products, props.productsList.isDeleted]);
+    if(props.productsList.isNewProductAdded) {
+      window.alert(props.productsList.msg);
+      props.resetMsgs();
+    }else if (props.productsList.isDeleted) {
+      window.alert(props.productsList.msg);
+      props.resetMsgs();
+    }else if(props.productsList.isProductUpdated){
+      window.alert(props.productsList.msg);
+      props.resetMsgs();
+    }
+  }, [props.productsList.products,props.productsList.isDeleted,props.productsList.isNewProductAdded,props.productsList.isProductUpdated]);
 
   const productsList = props.productsList.products;
   const handleDelete = async id => {
     await props.deleteProduct(id);
     console.log(props);
-    if (props.productsList.isDeleted) {
-      window.alert(props.productsList.msg);
-    }
   };
-  const handleAddProduct = ()=>{
-    let value = addInput.current.value;
+  const handleAddProduct = () => {
+    const { value } = addInput.current;
     console.log(value);
     props.addProduct(value);
-    if(props.productsList.isNewProductAdded){
-      window.alert(props.productsList.msg)
-    }
+  };
+  const handleCancel=()=>{
+    setShowEdit(false);
+  }
+  const handleEdit=(id)=>{
+    let value = editInput.current.value;
+    props.editProduct(id,value);
+    setShowEdit(!showEdit)
+
+  }
+  const handleShowToggle=(id)=>{
+    setToggleId(id);
+    setShowEdit(!showEdit); 
   }
   console.log('at line 47 productsList >>> ', productsList);
   return (
@@ -60,17 +80,31 @@ export function ProductsList(props) {
       <FormattedMessage {...messages.header} />
       <div>
         <div>
-          <input type={"text"} placeholder={"Enter Title to add in the list"} ref={addInput} />
+          <input
+            type="text"
+            placeholder="Enter Title to add in the list"
+            ref={addInput}
+          />
           &nbsp;
-          <button onClick={()=>handleAddProduct()}>Add Product</button>
+          <button onClick={() => handleAddProduct()}>Add Product</button>
         </div>
         {productsList.products &&
           productsList.products.length > 0 &&
           productsList.products.map((item, index) => (
             <div key={index}>
-              <p>
+              <p>{!showEdit && <>
                 {item.title} &nbsp;
                 <button onClick={() => handleDelete(item.id)}>X</button>
+                &nbsp;
+                <button onClick={()=>handleShowToggle(item.id)}>✍</button>
+                </>}
+                {showEdit && toggleId==item.id && <>
+                <input type={"text"} placeholder={item.title} ref={editInput}  />
+                &nbsp;
+                <button onClick={() => handleEdit(item.id)}>Edit</button>
+                &nbsp;
+                <button onClick={() => handleCancel()}>Cancel</button>
+                </>}
               </p>
             </div>
           ))}
@@ -94,7 +128,9 @@ function mapDispatchToProps(dispatch) {
     dispatch,
     fetchProducts: () => dispatch(fetchProducts()),
     deleteProduct: id => dispatch(deleteProduct(id)),
-    addProduct:title=> dispatch(addProduct(title))
+    addProduct: title => dispatch(addProduct(title)),
+    resetMsgs:()=>dispatch(resetMsgs()),
+    editProduct:(id,newTitle)=>dispatch(editProduct({id,newTitle}))
   };
 }
 
