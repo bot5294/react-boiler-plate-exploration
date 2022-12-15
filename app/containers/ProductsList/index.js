@@ -23,19 +23,25 @@ import { deleteProduct, fetchProducts } from './actions';
 export function ProductsList(props) {
   useInjectReducer({ key: 'productsList', reducer });
   useInjectSaga({ key: 'productsList', saga });
-  
   useEffect(() => {
-    if (
-      props.productsList &&
-      props.productsList.products &&
-      props.productsList.products.length === 0
-    ) {
-      props.fetchProducts();
-    }
-    console.log(props);
-  }, [props.productsList]);
+      if (
+        props.productsList &&
+        props.productsList.products &&
+        props.productsList.products.length === 0
+      ) {
+            props.fetchProducts();
+        }                  
+  }, [props.productsList.products,props.productsList.isDeleted]);
+
   const productsList = props.productsList.products;
-  console.log('product >> indexjs >> ', productsList);
+  const handleDelete = async (id)=>{
+    await props.deleteProduct(id);
+    console.log(props);
+    if(props.productsList.isDeleted){
+      window.alert(props.productsList.msg)
+    }
+  }
+  console.log("at line 47 productsList >>> ",productsList);
   return (
     <div>
       <Helmet>
@@ -48,8 +54,10 @@ export function ProductsList(props) {
           productsList.products.length > 0 &&
           productsList.products.map((item, index) => (
             <div key={index}>
-            <p>{item.title} &nbsp;
-            <button onClick={()=>props.deleteProduct(item.id)} >X</button></p>
+              <p>
+                {item.title} &nbsp;
+                <button onClick={() => handleDelete(item.id)}>X</button>
+              </p>
             </div>
           ))}
       </div>
@@ -60,7 +68,7 @@ export function ProductsList(props) {
 ProductsList.propTypes = {
   dispatch: PropTypes.func.isRequired,
   fetchProducts: PropTypes.func,
-  props:PropTypes.any
+  props: PropTypes.any,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -71,7 +79,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     fetchProducts: () => dispatch(fetchProducts()),
-    deleteProduct:(id)=>dispatch(deleteProduct(id)),
+    deleteProduct: id => dispatch(deleteProduct(id)),
   };
 }
 

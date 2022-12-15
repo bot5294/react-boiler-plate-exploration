@@ -1,4 +1,4 @@
-import { take, call, put, select, takeLatest,all } from 'redux-saga/effects';
+import { take, call, put, select, takeLatest, all } from 'redux-saga/effects';
 import { DELETE_PRODUCT, FETCH_PRODUCTS } from './constants';
 import request from '../../utils/request';
 import { deleteProductSuccess, fetchProductsSuccess } from './actions';
@@ -12,19 +12,23 @@ export function* fetchProducts() {
     console.log(error);
   }
 }
-export function* deleteProducts(action){
-  console.log("inside generator >>>  ",action.pid);
+export function* deleteProducts(action) {
+  console.log('inside generator >>>  ', action.pid);
   const reqUrl = `https://dummyjson.com/products/${action.pid}`;
   try {
-   let options = {
+    const options = {
       method: 'DELETE',
+    };
+    const isDeleted = yield call(request, reqUrl, options);
+    if (isDeleted) {
+      yield put(
+        deleteProductSuccess({
+          isDeleted: true,
+          msg: `Item with id ${action.pid} deleted successfully`,
+        }),
+      );
+    } else {
     }
-   const isDeleted = yield call(request,reqUrl,options);
-   if(isDeleted){
-    yield put(deleteProductSuccess({isDeleted:true,msg:`Item with id ${action.id} deleted successfully`}));
-   }else{
-  
-   }
   } catch (error) {
     console.log(error);
   }
@@ -32,9 +36,9 @@ export function* deleteProducts(action){
 // Individual exports for testing
 export default function* productsListSaga() {
   // See example in containers/HomePage/saga.js
-  console.log("inside productListSaga >>>>> ");
+  console.log('inside productListSaga >>>>> ');
   yield all([
     takeLatest(FETCH_PRODUCTS, fetchProducts),
-    takeLatest(DELETE_PRODUCT,deleteProducts)
-  ])
+    takeLatest(DELETE_PRODUCT, deleteProducts),
+  ]);
 }

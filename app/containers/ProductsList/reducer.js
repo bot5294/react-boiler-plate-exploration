@@ -15,14 +15,13 @@ import {
 
 export const initialState = {
   products: [],
-  isDeleted:false,
-  msg:""
+  isDeleted: false,
+  msg: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const productsListReducer = (state = initialState, action) =>
   produce(state, draft => {
-    console.log("inside reducer produce");
     switch (action.type) {
       case DEFAULT_ACTION:
         break;
@@ -30,19 +29,20 @@ const productsListReducer = (state = initialState, action) =>
         break;
       case FETCH_PRODUCTS_SUCCESS:
         draft.products = action.response;
+        draft.isDeleted=false;
         return draft;
       case DELETE_PRODUCT:
-        console.log("inside reducer >>> ",action.pid);
-        let products = [...state.products.products];
-        products= products.filter(item=>item.id!=action.pid);
-        console.log("products after deleting");
+        console.log('inside reducer >>> ', action.pid);
+        let products = state.products.products;
+        products = products.filter(item => item.id != action.pid);
+        console.log('products after deleting');
         console.log(products);
-        draft.products=products;
+        draft.products.products = products;
         return draft;
       case DELETE_PRODUCT_SUCCESS:
-        console.log("action -> ",action.response);
-        draft.isDeleted=action.response.isDeleted;
-        draft.msg=action.response.msg;
+        console.log('action -> ', action.response);
+        draft.isDeleted = action.response.isDeleted;
+        draft.msg = action.response.msg;
         return draft;
     }
   });

@@ -30,10 +30,10 @@ export function fetchProductsSuccess(response) {
   };
 }
 export function deleteProduct(productId) {
-  console.log("inside deleteProduct >>>> ",productId);
+  console.log('inside deleteProduct >>>> ', productId);
   return {
     type: DELETE_PRODUCT,
-    pid:productId,
+    pid: productId,
   };
 }
 export function deleteProductSuccess(response) {
