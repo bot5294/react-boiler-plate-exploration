@@ -10,6 +10,8 @@ import {
   FETCH_PRODUCTS,
   DELETE_PRODUCT,
   DELETE_PRODUCT_SUCCESS,
+  ADD_PRODUCT,
+  ADD_PRODUCT_SUCCESS,
 } from './constants';
 
 export function defaultAction() {
@@ -39,6 +41,19 @@ export function deleteProduct(productId) {
 export function deleteProductSuccess(response) {
   return {
     type: DELETE_PRODUCT_SUCCESS,
+    response,
+  };
+}
+export function addProduct(productData) {
+  console.log('inside addProduct >>>> ', productData);
+  return {
+    type: ADD_PRODUCT,
+    data: productData,
+  };
+}
+export function addProductSuccess(response) {
+  return {
+    type: ADD_PRODUCT_SUCCESS,
     response,
   };
 }

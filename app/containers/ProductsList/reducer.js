@@ -6,6 +6,8 @@
 import produce from 'immer';
 import { act } from 'react-test-renderer';
 import {
+  ADD_PRODUCT,
+  ADD_PRODUCT_SUCCESS,
   DEFAULT_ACTION,
   DELETE_PRODUCT,
   DELETE_PRODUCT_SUCCESS,
@@ -16,6 +18,8 @@ import {
 export const initialState = {
   products: [],
   isDeleted: false,
+  isNewProductAdded:false,
+  newProductId:null,
   msg: '',
 };
 
@@ -29,11 +33,11 @@ const productsListReducer = (state = initialState, action) =>
         break;
       case FETCH_PRODUCTS_SUCCESS:
         draft.products = action.response;
-        draft.isDeleted=false;
+        draft.isDeleted = false;
         return draft;
       case DELETE_PRODUCT:
         console.log('inside reducer >>> ', action.pid);
-        let products = state.products.products;
+        let { products } = state.products;
         products = products.filter(item => item.id != action.pid);
         console.log('products after deleting');
         console.log(products);
@@ -43,6 +47,14 @@ const productsListReducer = (state = initialState, action) =>
         console.log('action -> ', action.response);
         draft.isDeleted = action.response.isDeleted;
         draft.msg = action.response.msg;
+        return draft;
+      case ADD_PRODUCT:
+        console.log("addP >> ",action.data);
+        draft.products.products.unshift({id:action.newProductId,title:action.data});
+        return draft;
+      case ADD_PRODUCT_SUCCESS:
+        draft.isNewProductAdded=action.response.isNewProductAdded;
+        draft.msg=action.response.msg;
         return draft;
     }
   });
